@@ -2,6 +2,7 @@
 #define GAUSS_JORDAN_H
 
 #include <QObject>
+#include "mpreal.h"
 
 class gauss_jordan : public QObject
 {

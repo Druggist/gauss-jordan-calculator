@@ -30,4 +30,5 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 HEADERS += \
-    gauss_jordan.h
+    gauss_jordan.h \
+    mpreal.h
