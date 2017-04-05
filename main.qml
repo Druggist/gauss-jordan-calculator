@@ -79,6 +79,7 @@ ApplicationWindow {
                     textMargin: 10
                     selectByMouse: true
                     readOnly: true
+                    text: arithmetic.checked ? solver.results_interval() : solver.results_standard()
 
                     background: Rectangle {
                         anchors.fill: parent
@@ -112,6 +113,10 @@ ApplicationWindow {
             Switch {
                 id: arithmetic
                 checked: false
+
+                onClicked: {
+                    results.text = arithmetic.checked ? solver.results_interval() : solver.results_standard()
+                }
             }
 
             Label {
@@ -142,7 +147,6 @@ ApplicationWindow {
                     wrapMode: TextArea.Wrap
                     textMargin: 10
                     selectByMouse: true
-                  //placeholderText: qsTr("Enter data here... \n Example: \n 2_1_-3_+7;\n 4_8_-5_-9; \n 6.66_+0.22_-5.2_4; \n 2.12_3.0_5.1_1;")
 
                     background: Rectangle {
                         anchors.fill: parent
@@ -158,7 +162,7 @@ ApplicationWindow {
                             anchors.fill: parent
                             anchors.margins: 10
                             anchors.topMargin: 20
-                            text: "Enter data here... \nPattern: <number>_<number>_<number>;\n\nExample: \n2_1_-3_+7;\n4_8_-5_-9; \n6.66_+0.22_-5.2_4; \n2.12_3.0_5.1_1;"
+                            text: "Enter data here... \nPattern: <number>_<number>_<number>=<number>;\n\nExample: \n2_1_-3_+7=5;\n4_8_-5_-9=4; \n6.66_+0.22_-5.2_4=2; \n2.12_3.0_5.1_1=1;"
                             color: "#616161"
                             visible: !factors.text && !factors.focus
                             font.pixelSize: 14
@@ -176,6 +180,11 @@ ApplicationWindow {
             id: compute
             text: "Compute"
             anchors.horizontalCenter: parent.horizontalCenter
+
+            onClicked: {
+                solver.pass_data(factors.text)
+                results.text = arithmetic.checked ? solver.results_interval() : solver.results_standard()
+            }
         }
     }
 }

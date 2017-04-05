@@ -3,7 +3,7 @@ QT += qml quick
 CONFIG += c++11
 
 SOURCES += main.cpp \
-    gauss_jordan.cpp
+    gaussjordan.cpp
 
 RESOURCES += qml.qrc
 
@@ -30,5 +30,5 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 HEADERS += \
-    gauss_jordan.h \
-    mpreal.h
+    mpreal.h \
+    gaussjordan.h
