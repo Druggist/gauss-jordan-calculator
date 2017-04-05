@@ -44,7 +44,7 @@ ApplicationWindow {
         Item {
             id: mainTitle
             width: parent.width * 0.7
-            height: 120
+            height: 100
 
             Label {
                 anchors.horizontalCenter: parent.horizontalCenter
@@ -60,7 +60,7 @@ ApplicationWindow {
 
         Item {
             width: parent.width * 0.85
-            height: parent.height * 0.5 - mainTitle.height - arithmetic_wrapper.height
+            height: parent.height * 0.6 - mainTitle.height - arithmetic_wrapper.height
 
             Subtitle {
                 text: "Results:"
@@ -99,37 +99,71 @@ ApplicationWindow {
 
         Row {
             id: arithmetic_wrapper
-            anchors.right: parent.right
             anchors.margins: 40
-            anchors.bottomMargin: 0
+            height: 80
+            anchors.horizontalCenter: parent.horizontalCenter
+            spacing: 20
 
-            Label {
-                text: "Standard"
-                color: arithmetic.checked ? "#9E9E9E" : "#FAFAFA"
+            Button {
+                id: sMatrix
+                text: "Standard Matrix"
                 anchors.verticalCenter: parent.verticalCenter
-                font.bold: !arithmetic.checked
-            }
-
-            Switch {
-                id: arithmetic
-                checked: false
 
                 onClicked: {
-                    results.text = arithmetic.checked ? solver.results_interval() : solver.results_standard()
+                    results.text = solver.print_sMatrix()
                 }
             }
 
-            Label {
-                text: "Interval"
-                color: arithmetic.checked ? "#FAFAFA" : "#9E9E9E"
+            Button {
+                id: iMatrix
+                text: "Interval Matrix"
                 anchors.verticalCenter: parent.verticalCenter
-                font.bold: arithmetic.checked
+
+                onClicked: {
+                    results.text = solver.print_iMatrix()
+                }
+            }
+
+            Button {
+                id: permutations
+                text: "Permutation Matrix"
+                anchors.verticalCenter: parent.verticalCenter
+
+                onClicked: {
+                    results.text = solver.print_permutations()
+                }
+            }
+            Row {
+                anchors.verticalCenter: parent.verticalCenter
+
+                Label {
+                    text: "Standard"
+                    color: arithmetic.checked ? "#9E9E9E" : "#FAFAFA"
+                    anchors.verticalCenter: parent.verticalCenter
+                    font.bold: !arithmetic.checked
+                }
+
+                Switch {
+                    id: arithmetic
+                    checked: false
+
+                    onClicked: {
+                        results.text = arithmetic.checked ? solver.results_interval() : solver.results_standard()
+                    }
+                }
+
+                Label {
+                    text: "Interval"
+                    color: arithmetic.checked ? "#FAFAFA" : "#9E9E9E"
+                    anchors.verticalCenter: parent.verticalCenter
+                    font.bold: arithmetic.checked
+                }
             }
         }
 
         Item {
             width: parent.width
-            height: parent.height * 0.5 - compute.height - 20
+            height: parent.height * 0.4 - compute.height - 20
 
             Subtitle {
                 text: "Data:"
