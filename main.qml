@@ -124,15 +124,6 @@ ApplicationWindow {
                 }
             }
 
-            Button {
-                id: permutations
-                text: "Permutation Matrix"
-                anchors.verticalCenter: parent.verticalCenter
-
-                onClicked: {
-                    results.text = solver.print_permutations()
-                }
-            }
             Row {
                 anchors.verticalCenter: parent.verticalCenter
 

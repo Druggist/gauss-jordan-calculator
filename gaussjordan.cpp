@@ -53,7 +53,7 @@ QString GaussJordan::results_standard() {
     QString result;
 
     for(unsigned int i = 0; i < sMatrix.size(); i++){
-       result += "X" + QString::number(i) + " = " + QString::number(sMatrix[i][i],'f', this->precision) + "\n";
+       result += "X" + QString::number(i) + " = " + QString::number(sMatrix[i][sMatrix[i].size() - 1],'f', this->precision) + "\n";
     }
 
     return result;
@@ -95,18 +95,6 @@ QString GaussJordan::print_iMatrix()
     return text;
 }
 
-QString GaussJordan::print_permutations()
-{
-    QString text = " Permutation Matrix:\n";
-
-    for(unsigned int i = 0; i < permutations.size(); i++){
-       for(unsigned int j = 0; j < permutations[i].size(); j++) text += QString::number(permutations[i][j]) + "\t";
-       text += "\n";
-    }
-
-    return text;
-}
-
 void GaussJordan::compute_standard() {
     for(unsigned int i = 0; i < sMatrix.size(); i++) {
         QPoint firstElement = maxElement(true, i);
@@ -115,8 +103,17 @@ void GaussJordan::compute_standard() {
         //swap columns
         if(firstElement.y() != i) for(unsigned int j = 0; j < sMatrix.size(); j++) iter_swap(sMatrix[j].begin() + i, sMatrix[j].begin() + firstElement.y());
 
-
+        for(unsigned int j = 0; j < sMatrix.size(); j++){
+            double multiplier = sMatrix[j][i] / sMatrix[i][i];
+            if(j != i) for(unsigned int k = 0; k < sMatrix[j].size(); k++) sMatrix[j][k] -= multiplier * sMatrix[i][k];
+        }
     }
+
+    for(unsigned int i = 0; i < sMatrix.size(); i++) {
+        sMatrix[i][sMatrix[i].size() - 1] /= sMatrix[i][i];
+        sMatrix[i][i] /= sMatrix[i][i];
+    }
+
 
     sComputed = true;
 }
@@ -131,7 +128,7 @@ QPoint GaussJordan::maxElement(bool standard, int n) {
     if(standard) {
         for(unsigned int i = n; i < sMatrix.size(); i++){
             for(unsigned int j = n; j < sMatrix[i].size() - 1; j++){
-                if(sMatrix[maxElement.x()][maxElement.y()] < sMatrix[i][j]) {
+                if(fabs(sMatrix[maxElement.x()][maxElement.y()]) < fabs(sMatrix[i][j])) {
                     maxElement.setX(i);
                     maxElement.setY(j);
                 }

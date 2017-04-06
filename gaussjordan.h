@@ -8,6 +8,7 @@
 #include <QStringList>
 #include <vector>
 #include <algorithm>
+#include <cmath>
 
 #include <QDebug>
 
@@ -24,13 +25,11 @@ public:
     Q_INVOKABLE QString results_interval();
     Q_INVOKABLE QString print_sMatrix();
     Q_INVOKABLE QString print_iMatrix();
-    Q_INVOKABLE QString print_permutations();
 
 private:
     int precision;
     vector<vector<double>> sMatrix;
     //vector<vector<vector<mpreal>>> iMatrix;
-    vector<vector<int>> permutations;
     bool iComputed = false, sComputed = false;
     bool load_data(QString);
     void compute_standard();
