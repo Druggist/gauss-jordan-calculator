@@ -30,5 +30,10 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 HEADERS += \
-    mpreal.h \
-    gaussjordan.h
+    gaussjordan.h \
+    interval.h
+loc
+
+unix|win32: LIBS += -lgmp
+unix|win32: LIBS += -lboost_program_options
+unix|win32: LIBS += -lmpfr

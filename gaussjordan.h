@@ -1,7 +1,7 @@
 #ifndef GAUSS_JORDAN_H
 #define GAUSS_JORDAN_H
 
-//#include "mpreal.h"
+#include "interval.h"
 #include <QObject>
 #include <QString>
 #include <QPoint>
@@ -13,7 +13,7 @@
 #include <QDebug>
 
 using std::vector;
-//using mpfr::mpreal;
+using interval_arithmetic::Interval;
 
 class GaussJordan : public QObject {
 
@@ -29,7 +29,7 @@ public:
 private:
     int precision;
     vector<vector<double>> sMatrix;
-    //vector<vector<vector<mpreal>>> iMatrix;
+    vector<vector<Interval<double>>> iMatrix;
     bool iComputed = false, sComputed = false;
     bool load_data(QString);
     void compute_standard();
