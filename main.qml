@@ -187,7 +187,7 @@ ApplicationWindow {
                             anchors.fill: parent
                             anchors.margins: 10
                             anchors.topMargin: 20
-                            text: "Enter data here... \nPattern: <number>_<number>_<number>=<number>;\n\nExample: \n2_1_-3_+7=5;\n4_8_-5_-9=4; \n6.66_+0.22_-5.2_4=2; \n2.12_3.0_5.1_1=1;"
+                            text: "Enter data here... \nPattern: <number | interval>_<number | interval>=<number | interval>;\n\nExample: \n4_8_-5=4; \n[6.66, 12.34]_+0.22_-5.2=2; \n2.12_3.0_5.1=[1, 2];"
                             color: "#616161"
                             visible: !factors.text && !factors.focus
                             font.pixelSize: 14
