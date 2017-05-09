@@ -30,6 +30,7 @@ private:
     int precision;
     vector<vector<double>> sMatrix;
     vector<vector<Interval<double>>> iMatrix;
+    vector<unsigned int> sColumns, iColumns;
     bool iComputed = false, sComputed = false;
     bool load_data(QString);
     void compute_standard();

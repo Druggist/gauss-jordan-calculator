@@ -14,6 +14,8 @@ void GaussJordan::pass_data(QString data) {
 bool GaussJordan::load_data(QString data) {
     sMatrix.erase(sMatrix.begin(),sMatrix.end());
     iMatrix.erase(iMatrix.begin(),iMatrix.end());
+    sColumns.erase(sColumns.begin(),sColumns.end());
+    iColumns.erase(iColumns.begin(),iColumns.end());
 
     QRegExp rx("(\\ |\\t|\\n|\\+)");
     data.replace(rx,"");
@@ -37,9 +39,7 @@ bool GaussJordan::load_data(QString data) {
 
         for(int j = 0; j < values.size();j++) {
             sRow.push_back(values.at(j).toDouble());
-
-            Interval<double> tmp(values.at(j).toDouble(), values.at(j).toDouble());
-            iRow.push_back(tmp);
+            iRow.push_back(Interval<double>::IntRead(values.at(j).toStdString()));
         }
         if(sRow.size() != n + 1) {
             sMatrix.erase(sMatrix.begin(),sMatrix.end());
@@ -49,8 +49,11 @@ bool GaussJordan::load_data(QString data) {
             iMatrix.erase(iMatrix.begin(),iMatrix.end());
             return false;
         }
+
         sMatrix.push_back(sRow);
         iMatrix.push_back(iRow);
+        sColumns.push_back(i);
+        iColumns.push_back(i);
     }
 
     return true;
@@ -62,7 +65,14 @@ QString GaussJordan::results_standard() {
     QString result;
 
     for(unsigned int i = 0; i < sMatrix.size(); i++){
-       result += "X" + QString::number(i) + " = " + QString::number(sMatrix[i][sMatrix[i].size() - 1],'f', this->precision) + "\n";
+        unsigned int el = i;
+        for(unsigned int j = 0; j < sColumns.size(); j++){
+            if(sColumns[j] == i) {
+                el = j;
+                break;
+            }
+        }
+       result += "X" + QString::number(i) + " = " + QString::number(sMatrix[el][sMatrix[el].size() - 1],'f', this->precision) + "\n";
     }
 
     return result;
@@ -74,8 +84,16 @@ QString GaussJordan::results_interval() {
     QString result;
 
     for(unsigned int i = 0; i < sMatrix.size(); i++){
+        unsigned int el = i;
+        for(unsigned int j = 0; j < iColumns.size(); j++){
+            if(iColumns[j] == i) {
+                el = j;
+                break;
+            }
+        }
+
         string a,b;
-        iMatrix[i][iMatrix[i].size() - 1].IEndsToStrings(a, b);
+        iMatrix[el][iMatrix[el].size() - 1].IEndsToStrings(a, b);
         result += "X" + QString::number(i) + " = [" + QString::fromStdString(a) + ", " + QString::fromStdString(b) + "]\n";
     }
 
@@ -116,8 +134,10 @@ void GaussJordan::compute_standard() {
         //swap rows
         if(firstElement.x() != i) sMatrix[i].swap(sMatrix[firstElement.x()]);
         //swap columns
-        if(firstElement.y() != i) for(unsigned int j = 0; j < sMatrix.size(); j++) iter_swap(sMatrix[j].begin() + i, sMatrix[j].begin() + firstElement.y());
-
+        if(firstElement.y() != i) {
+            for(unsigned int j = 0; j < sMatrix.size(); j++) iter_swap(sMatrix[j].begin() + i, sMatrix[j].begin() + firstElement.y());
+            iter_swap(sColumns.begin() + i, sColumns.begin() + firstElement.y());
+        }
         for(unsigned int j = 0; j < sMatrix.size(); j++){
             double multiplier = sMatrix[j][i] / sMatrix[i][i];
             if(j != i) for(unsigned int k = 0; k < sMatrix[j].size(); k++) sMatrix[j][k] -= multiplier * sMatrix[i][k];
@@ -138,7 +158,10 @@ void GaussJordan::compute_interval() {
         //swap rows
         if(firstElement.x() != i) iMatrix[i].swap(iMatrix[firstElement.x()]);
         //swap columns
-        if(firstElement.y() != i) for(unsigned int j = 0; j < iMatrix.size(); j++) iter_swap(iMatrix[j].begin() + i, iMatrix[j].begin() + firstElement.y());
+        if(firstElement.y() != i) {
+            for(unsigned int j = 0; j < iMatrix.size(); j++) iter_swap(iMatrix[j].begin() + i, iMatrix[j].begin() + firstElement.y());
+            iter_swap(iColumns.begin() + i, iColumns.begin() + firstElement.y());
+        }
 
         for(unsigned int j = 0; j < iMatrix.size(); j++){
             Interval<double> multiplier = iMatrix[j][i] / iMatrix[i][i];
@@ -169,10 +192,7 @@ QPoint GaussJordan::maxElement(bool standard, int n) {
     } else {
         for(int i = n; i < iMatrix.size(); i++){
             for(int j = n; j < iMatrix[i].size(); j++){
-                if(iMatrix[maxElement.x()][maxElement.y()].b < iMatrix[i][j].b) {
-                    maxElement.setX(i);
-                    maxElement.setY(j);
-                } else if(iMatrix[maxElement.x()][maxElement.y()].b == iMatrix[i][j].b && iMatrix[maxElement.x()][maxElement.y()].a > iMatrix[i][j].a){
+                if(iMatrix[maxElement.x()][maxElement.y()].b < iMatrix[i][j].a) {
                     maxElement.setX(i);
                     maxElement.setY(j);
                 }
