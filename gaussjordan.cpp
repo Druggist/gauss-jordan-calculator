@@ -18,12 +18,11 @@ bool GaussJordan::load_data(QString data) {
     iColumns.erase(iColumns.begin(),iColumns.end());
 
     QRegExp rx("(\\ |\\t|\\n|\\+)");
+    QRegExp iRx("(\\[((\\-)?[0-9]+(\\.)?[0-9]*)\\,((\\-)?[0-9]+(\\.)?[0-9]*)\\])");
     data.replace(rx,"");
 
-    rx.setPattern("((((\\-)?[0-9]+(\\.)?[0-9]*_)*((\\-)?[0-9]+(\\.)?[0-9]*)\\=((\\-)?[0-9]+(\\.)?[0-9]*)\\;)+)");
+    rx.setPattern("(((((\\-)?[0-9]+(\\.)?[0-9]*\\_)|(\\[((\\-)?[0-9]+(\\.)?[0-9]*)\\,((\\-)?[0-9]+(\\.)?[0-9]*)\\]\\_))*(((\\-)?[0-9]+(\\.)?[0-9]*)|(\\[((\\-)?[0-9]+(\\.)?[0-9]*)\\,((\\-)?[0-9]+(\\.)?[0-9]*)\\]))\\=(((\\-)?[0-9]+(\\.)?[0-9]*)||(\\[((\\-)?[0-9]+(\\.)?[0-9]*)\\,((\\-)?[0-9]+(\\.)?[0-9]*)\\]))\\;)+)");
     if(!rx.exactMatch(data)) return false;
-
-
 
     rx.setPattern("(\\;)");
     QStringList query = data.split(rx);
@@ -38,8 +37,23 @@ bool GaussJordan::load_data(QString data) {
         QStringList values = query.at(i).split(rx);
 
         for(int j = 0; j < values.size();j++) {
-            sRow.push_back(values.at(j).toDouble());
-            iRow.push_back(Interval<double>::IntRead(values.at(j).toStdString()));
+            if(!iRx.exactMatch(values.at(j))) {
+                sRow.push_back(values.at(j).toDouble());
+                iRow.push_back(Interval<double>::IntRead(values.at(j).toStdString()));
+            }else{
+                QString intStr = values.at(j);
+                intStr.replace("[", "");
+                intStr.replace("]", "");
+                QStringList iList = intStr.split(',');
+                if(iList.size() != 2) return false;
+                Interval<double> tmp;
+                if(iList.at(0).toDouble() > iList.at(1).toDouble()) return false;
+
+                sRow.push_back((iList.at(0).toDouble() + iList.at(1).toDouble()) / 2);
+                tmp.a = Interval<double>::LeftRead(iList.at(0).toStdString());
+                tmp.b = Interval<double>::RightRead(iList.at(1).toStdString());
+                iRow.push_back(tmp);
+            }
         }
         if(sRow.size() != n + 1) {
             sMatrix.erase(sMatrix.begin(),sMatrix.end());
