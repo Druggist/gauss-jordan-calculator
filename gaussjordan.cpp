@@ -2,12 +2,20 @@
 
 GaussJordan::GaussJordan(QObject *parent, int precision) : QObject(parent) {
     this->precision = precision;
+    this->st = 0;
 }
 
 void GaussJordan::pass_data(QString data) {
+    this->st = 0;
+
     if(load_data(data)){
         compute_standard();
-        compute_interval();
+        try {
+            compute_interval();
+        } catch(...) {
+            iComputed = false;
+            this->st = -1;
+        }
     }
 }
 
@@ -22,8 +30,10 @@ bool GaussJordan::load_data(QString data) {
     data.replace(rx,"");
 
     rx.setPattern("(((((\\-)?[0-9]+(\\.)?[0-9]*\\_)|(\\[((\\-)?[0-9]+(\\.)?[0-9]*)\\,((\\-)?[0-9]+(\\.)?[0-9]*)\\]\\_))*(((\\-)?[0-9]+(\\.)?[0-9]*)|(\\[((\\-)?[0-9]+(\\.)?[0-9]*)\\,((\\-)?[0-9]+(\\.)?[0-9]*)\\]))\\=(((\\-)?[0-9]+(\\.)?[0-9]*)||(\\[((\\-)?[0-9]+(\\.)?[0-9]*)\\,((\\-)?[0-9]+(\\.)?[0-9]*)\\]))\\;)+)");
-    if(!rx.exactMatch(data)) return false;
-
+    if(!rx.exactMatch(data)) {
+        this->st = 1;
+        return false;
+    }
     rx.setPattern("(\\;)");
     QStringList query = data.split(rx);
 
@@ -35,7 +45,10 @@ bool GaussJordan::load_data(QString data) {
         vector<double> sRow;
         vector<Interval<double>> iRow;
         QStringList values = query.at(i).split(rx);
-
+        if(values.size() != n + 1) {
+            this->st = 1;
+            return false;
+        }
         for(int j = 0; j < values.size();j++) {
             if(!iRx.exactMatch(values.at(j))) {
                 sRow.push_back(values.at(j).toDouble());
@@ -45,21 +58,24 @@ bool GaussJordan::load_data(QString data) {
                 intStr.replace("[", "");
                 intStr.replace("]", "");
                 QStringList iList = intStr.split(',');
-                if(iList.size() != 2) return false;
+                if(iList.size() != 2) {
+                    this->st = 1;
+                    return false;
+                }
                 Interval<double> tmp;
-                if(iList.at(0).toDouble() > iList.at(1).toDouble()) return false;
-
+                if(iList.at(0).toDouble() > iList.at(1).toDouble()) {
+                    this->st = 1;
+                    return false;
+                }
                 sRow.push_back((iList.at(0).toDouble() + iList.at(1).toDouble()) / 2);
                 tmp.a = Interval<double>::LeftRead(iList.at(0).toStdString());
                 tmp.b = Interval<double>::RightRead(iList.at(1).toStdString());
                 iRow.push_back(tmp);
             }
         }
-        if(sRow.size() != n + 1) {
+        if(sRow.size() != n + 1 || iRow.size() != n + 1) {
+            this->st = 2;
             sMatrix.erase(sMatrix.begin(),sMatrix.end());
-            return false;
-        }
-        if(iRow.size() != n + 1) {
             iMatrix.erase(iMatrix.begin(),iMatrix.end());
             return false;
         }
@@ -74,6 +90,7 @@ bool GaussJordan::load_data(QString data) {
 }
 
 QString GaussJordan::results_standard() {
+    if(this->st > 0) return "Error: " + QString::number(this->st);
     if(!sComputed) return "Results has not been computed yet!";
 
     QString result;
@@ -93,6 +110,7 @@ QString GaussJordan::results_standard() {
 }
 
 QString GaussJordan::results_interval() {
+    if(this->st != 0) return "Error: " + QString::number(this->st);
     if(!iComputed) return "Results has not been computed yet!";
 
     QString result;
@@ -145,6 +163,10 @@ QString GaussJordan::print_iMatrix()
 void GaussJordan::compute_standard() {
     for(unsigned int i = 0; i < sMatrix.size(); i++) {
         QPoint firstElement = maxElement(true, i);
+        if(sMatrix[firstElement.x()][firstElement.y()] == 0){
+            this->st = 3;
+            return;
+        }
         //swap rows
         if(firstElement.x() != i) sMatrix[i].swap(sMatrix[firstElement.x()]);
         //swap columns
@@ -169,6 +191,10 @@ void GaussJordan::compute_standard() {
 void GaussJordan::compute_interval() {
     for(unsigned int i = 0; i < iMatrix.size(); i++) {
         QPoint firstElement = maxElement(true, i);
+        if(iMatrix[firstElement.x()][firstElement.y()].a <= 0 && iMatrix[firstElement.x()][firstElement.y()].b >= 0){
+            this->st = 3;
+            return;
+        }
         //swap rows
         if(firstElement.x() != i) iMatrix[i].swap(iMatrix[firstElement.x()]);
         //swap columns

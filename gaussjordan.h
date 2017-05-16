@@ -28,6 +28,14 @@ public:
 
 private:
     int precision;
+    int st;
+    /*
+    -1 - division by 0
+    0 - ok
+    1 - wrong data passed
+    2 - n != m
+    3 - singular matrix
+    */
     vector<vector<double>> sMatrix;
     vector<vector<Interval<double>>> iMatrix;
     vector<unsigned int> sColumns, iColumns;
