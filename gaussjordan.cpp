@@ -115,7 +115,7 @@ QString GaussJordan::results_interval() {
 
     QString result;
 
-    for(unsigned int i = 0; i < sMatrix.size(); i++){
+    for(unsigned int i = 0; i < iMatrix.size(); i++){
         unsigned int el = i;
         for(unsigned int j = 0; j < iColumns.size(); j++){
             if(iColumns[j] == i) {
@@ -148,11 +148,11 @@ QString GaussJordan::print_iMatrix()
 {
     QString text = " Interval Matrix:\n";
 
-    for(unsigned int i = 0; i < sMatrix.size(); i++){
-       for(unsigned int j = 0; j < sMatrix[i].size(); j++) {
+    for(unsigned int i = 0; i < iMatrix.size(); i++){
+       for(unsigned int j = 0; j < iMatrix[i].size(); j++) {
            string a,b;
            iMatrix[i][j].IEndsToStrings(a, b);
-           text += ((j == sMatrix[i].size() - 1) ? "|  [" : " [") + QString::fromStdString(a) + ", " + QString::fromStdString(b) + "]\t";
+           text += ((j == iMatrix[i].size() - 1) ? "|  [" : " [") + QString::fromStdString(a) + ", " + QString::fromStdString(b) + "]\t";
        }
        text += "\n";
     }
